@@ -49,7 +49,6 @@ public class ProductDaoImpl implements ProductDao {
 	@Override
 	public List<Product> getProductList(Search searchVO) throws Exception {
 		System.out.println(getClass() + ".getProductList(Search searchVO)");
-		System.out.println(searchVO);
 		return sqlSession.selectList("ProductMapper.allProduct", searchVO);
 	}
 
@@ -70,6 +69,12 @@ public class ProductDaoImpl implements ProductDao {
 	public Product getNonMemberPurchase(int tranNo) throws Exception {
 		System.out.println(getClass() + ".getNonMemberPurchase(int tranNo)");
 		return sqlSession.selectOne("ProductMapper.getNonMemberPurchase", tranNo);
+	}
+
+	@Override
+	public List<String> autocompleteProduct() throws Exception {
+		System.out.println(getClass() + ".autocompleteProduct()");
+		return sqlSession.selectList("ProductMapper.autocompleteProduct");
 	}
 
 }

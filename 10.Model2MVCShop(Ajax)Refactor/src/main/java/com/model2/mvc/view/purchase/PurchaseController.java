@@ -31,9 +31,11 @@ import com.model2.mvc.common.Search;
 import com.model2.mvc.service.cart.CartService;
 import com.model2.mvc.service.domain.Product;
 import com.model2.mvc.service.domain.Purchase;
+import com.model2.mvc.service.domain.Upload;
 import com.model2.mvc.service.domain.User;
 import com.model2.mvc.service.product.ProductService;
 import com.model2.mvc.service.purchase.PurchaseService;
+import com.model2.mvc.service.upload.UploadService;
 
 @Controller
 @RequestMapping("/purchase/*")
@@ -50,6 +52,10 @@ public class PurchaseController {
 	@Autowired
 	@Qualifier("cartServiceImpl")
 	CartService cartServiceImpl;
+	
+	@Autowired
+	@Qualifier("uploadServiceImpl")
+	UploadService uploadServiceImpl;
 
 	public PurchaseController() {
 		System.out.println(getClass() + " default Constructor()]");
@@ -137,8 +143,6 @@ public class PurchaseController {
 		String tranId = sdf1.format( Calendar.getInstance().getTime() ) + "";
 		System.out.println("purchaseVO.toString() defore : " + purchaseVO.toString());
 		
-		
-		
     	// 상세정보보기에서 구매
 		// 주문번호 넣기
 		purchaseVO.setTranId(tranId);
@@ -167,9 +171,13 @@ public class PurchaseController {
 			System.out.println(prodNo);
 			prodList.add(product);
 		}
+		
+		List<Upload> uploadList = uploadServiceImpl.getUploadFile(prodList.get(0).getFileName());
 
 		model.addAttribute("list", list);
 		model.addAttribute("prodList", prodList);
+		model.addAttribute("uploadList", uploadList);
+		model.addAttribute("count", uploadList.size());
 		
 		return new ModelAndView("/purchase/addPurchase.jsp", "model", model);
 	}
@@ -181,6 +189,7 @@ public class PurchaseController {
 		List<Purchase> list = new ArrayList<Purchase>();
 		List<Product> prodList = new ArrayList<Product>();
 		Product productVO = new Product();
+		List<String> uploadList = new ArrayList<String>();
 		
 		//주문번호에 넣은 식별성있는 값
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");		
@@ -286,7 +295,17 @@ public class PurchaseController {
 			System.out.println(list.get(i).toString());
 			System.out.println(prodList.get(i).toString());
 		}
+
+		for (int i = 0; i < prodList.size() ; i++) {
+			uploadList.add(uploadServiceImpl.getUploadFile(prodList.get(i).getFileName()).get(0).getFileName());
+		}
 		
+		for (int i = 0; i < uploadList.size(); i++) {
+			System.out.println("어떻게 나오나 " + uploadList.get(i));
+		}
+		
+		model.addAttribute("uploadList", uploadList);
+		model.addAttribute("count", uploadList.size());
 		model.addAttribute("list", list);
 		model.addAttribute("prodList", prodList);
 		
@@ -298,6 +317,7 @@ public class PurchaseController {
 		System.out.println("/purchase/getPurchaseFromTranId : GET");
 		
 		List<Purchase> purList = (List<Purchase>)purchaseServiceImpl.getPurchaseFromTranId(tranId);
+		List<String> uploadList = new ArrayList<String>();
 
 		List<Product> proList = new ArrayList<Product>();
 		for (int i = 0; i < purList.size(); i++) {
@@ -307,8 +327,17 @@ public class PurchaseController {
 			proList.add(product);
 		}
 		
+		for (int i = 0; i < proList.size(); i++) {
+			uploadList.add(uploadServiceImpl.getUploadFile(proList.get(i).getFileName()).get(0).getFileName());
+		}
+		
+		for (int i = 0; i < uploadList.size(); i++) {
+			System.out.println(uploadList);
+		}
+				
 		model.addAttribute("purList", purList);
 		model.addAttribute("proList", proList);
+		model.addAttribute("uploadList", uploadList);
 		
 		return new ModelAndView("/purchase/getPurchase.jsp", "model", model);
 	}
@@ -408,6 +437,7 @@ public class PurchaseController {
 	public ModelAndView getNonMemPurchase(@RequestParam("tranId") String tranId, Model model) throws Exception {
 		System.out.println("/purchase/getNonMemPurchase : POST");
 		System.out.println(tranId);
+		List<String> uploadList = new ArrayList<String>();
 		
 		//비회원 주문조회
 		List<Purchase> purList = purchaseServiceImpl.getPurchaseFromTranId(tranId);
@@ -418,7 +448,12 @@ public class PurchaseController {
 			productVO = productServiceImpl.getNonMemberPurchase(purList.get(i).getTranNo());
 			proList.add(productVO);
 		}
-		
+
+		for (int i = 0; i < proList.size() ; i++) {
+			uploadList.add(uploadServiceImpl.getUploadFile(proList.get(i).getFileName()).get(0).getFileName());
+		}
+
+		model.addAttribute("uploadList", uploadList);
 		model.addAttribute("purList", purList);
 		model.addAttribute("proList", proList);
 		
