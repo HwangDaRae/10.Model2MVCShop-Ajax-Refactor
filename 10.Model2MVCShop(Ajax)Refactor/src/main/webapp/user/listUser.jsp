@@ -1,32 +1,63 @@
 <%@ page contentType="text/html; charset=euc-kr" %>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
 <head>
 <title>회원 목록 조회</title>
 
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="/css/admin.css" type="text/css">
+<script src="//code.jquery.com/jquery-2.1.4.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
 <script type="text/javascript">
+$(function(){
+	$( ".ct_list_pop td:nth-child(3)" ).on("click" , function() {
+		var displayValue;
+		//Debug..
+		alert(  $( this ).text().trim() );
+		var userId = $(this).text().trim();
+		$.ajax(
+				{
+					url : "/user/json/getUser/"+userId ,
+					method : "GET" ,
+					dataType : "json" ,
+					headers : {
+						"Accept" : "application/json",
+						"Content-Type" : "application/json"
+					},
+					success : function(JSONData , status) {
+						displayValue = "아이디 : "+JSONData.userId
+										+"이  름 : "+JSONData.userName
+										+"이메일 : "+JSONData.email
+										+"ROLE : "+JSONData.role
+										+"등록일 : "+JSONData.regDateString
+						$("#dialog").text(displayValue);
+						$("#dialog").dialog();
+					}
+			});
+	});
+})
 
+</script>
+
+<script type="text/javascript">
 	// 검색 / page 두가지 경우 모두 Form 전송을 위해 JavaScrpt 이용  
 	function fncGetUserList(currentPage) {
 		document.getElementById("currentPage").value = currentPage;
 	   	document.detailForm.submit();		
 	}
-
 </script>
 
 </head>
 
 <body bgcolor="#ffffff" text="#000000">
 
+<div id="dialog" title="Basic dialog">
+</div>
+
 <div style="width:98%; margin-left:10px;">
 
-<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-<form name="detailForm" action="/listUser.do" method="post">
-////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 <form name="detailForm" action="/user/listUser" method="post">
 
 <table width="100%" height="37" border="0" cellpadding="0"	cellspacing="0">
@@ -98,30 +129,25 @@
 			<td align="center">${ i }</td>
 			<td></td>
 			<td align="left">
-				<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-				<a href="/getUser.do?userId=${user.userId}">${user.userId}</a></td>
-               	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
-			<a href="/user/getUser?userId=${user.userId}">${user.userId}</a></td>
+				${user.userId}
+			</td>
 			<td></td>
 			<td align="left">${user.userName}</td>
 			<td></td>
-			<td align="left">${user.email}</td>		
+			<td align="left">${user.email}</td>
 		</tr>
 		<tr>
-		<td colspan="11" bgcolor="D6D7D6" height="1"></td>
+			<td colspan="11" bgcolor="D6D7D6" height="1"></td>
 		</tr>
 	</c:forEach>
 </table>
-
 
 <!-- PageNavigation Start... -->
 <table width="100%" border="0" cellspacing="0" cellpadding="0"	style="margin-top:10px;">
 	<tr>
 		<td align="center">
 		   <input type="hidden" id="currentPage" name="currentPage" value=""/>
-	
-			<jsp:include page="../common/pageNavigator.jsp"/>	
-			
+			<jsp:include page="../common/pageNavigator.jsp"/>
     	</td>
 	</tr>
 </table>
