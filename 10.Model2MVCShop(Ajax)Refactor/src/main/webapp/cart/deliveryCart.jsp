@@ -7,13 +7,20 @@
 <meta charset="EUC-KR">
 <link rel="stylesheet" href="/css/admin.css" type="text/css">
 <title>Insert title here</title>
-<script type="text/javascript" src="../javascript/calendar.js">
-</script>
+<script type="text/javascript" src="../javascript/calendar.js"></script>
+<script src="//code.jquery.com/jquery-2.1.4.js" type="text/javascript"></script>
+
 <script type="text/javascript">
-function purchaseFinish(){
-	confirm('결제완료 하시겠습니까?');
-	document.detailForm.submit();
-}
+$(function(){
+	$("input[value='결제완료']").bind("click",function(){
+		confirm('결제완료 하시겠습니까?');
+		document.detailForm.submit();
+	})
+	
+	$("#show_calendar").bind("click",function(){
+		show_calendar('document.detailForm.divyDate', document.detailForm.divyDate.value)
+	})
+})
 </script>
 </head>
 
@@ -44,8 +51,8 @@ function purchaseFinish(){
 			<table id="dataTable" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
 				<tr>
 					<td colspan="11">
-						총 <%-- ${ fn:length(list) } --%> ${ count } 개의 상품선택&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type="button" value="결제완료" onclick="purchaseFinish()">
+						총 ${ count } 개의 상품선택&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="결제완료">
 					</td>
 
 				</tr>
@@ -72,7 +79,7 @@ function purchaseFinish(){
 							<input type="text" name="amountArr" value="${ purList[i].amount }">
 							
 							<tr class="ct_list_pop" id="divDataId">
-								<td align="center"><img height="250" width="250" src="/images/uploadFiles/${ purList[i].purchaseProd.fileName }"/></td>
+								<td align="center"><img height="250" width="250" src="/images/uploadFiles/${ uploadList[i] }"/></td>
 								<td></td>
 								<td align="left">${ purList[i].purchaseProd.prodName }</td>
 								<td></td>
@@ -80,7 +87,7 @@ function purchaseFinish(){
 								<td></td>
 								<td align="left">${ purList[i].amount }개</td>
 								<td></td>
-								<td align="left">${ purList[i].purchaseProd.price } * ${ purList[i].amount } = ${ purList[i].purchaseProd.price * purList[i].amount }</td>
+								<td align="left">${ purList[i].purchaseProd.price }원 * ${ purList[i].amount }개 = ${ purList[i].purchaseProd.price * purList[i].amount }원</td>
 							</tr>
 							<tr>
 								<td colspan="11" bgcolor="D6D7D6" height="1"></td>
@@ -147,8 +154,7 @@ function purchaseFinish(){
 					<td width="200" class="ct_write01">
 						<input type="text" name="divyDate" class="ct_input_g"
 							style="width: 100px; height: 19px" maxLength="20"/>
-							<img src="../images/ct_icon_date.gif" width="15" height="15"
-							onclick="show_calendar('document.detailForm.divyDate', document.detailForm.divyDate.value)"/>
+							<img src="../images/ct_icon_date.gif" width="15" height="15" id="show_calendar"/>
 					</td>
 				</tr>
 				<tr>
@@ -159,7 +165,7 @@ function purchaseFinish(){
 
 			<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
 				<tr>
-					<td align="left"><input type="button" value="결제완료" onclick="purchaseFinish()"></td>
+					<td align="left"><input type="button" value="결제완료"></td>
 				</tr>
 			</table>
 		</form>
