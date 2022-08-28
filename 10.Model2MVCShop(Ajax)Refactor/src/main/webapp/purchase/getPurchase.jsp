@@ -7,6 +7,19 @@
 <title>구매상세조회</title>
 
 <link rel="stylesheet" href="/css/admin.css" type="text/css">
+<script src="//code.jquery.com/jquery-2.1.4.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(function(){	
+	$("td.ct_btn01:contains('수정')").bind("click",function(){
+		location.href = "/purchase/updatePurchaseView?tranNo=${ purList[0].tranNo }";
+	})
+	
+	$("td.ct_btn01:contains('확인')").bind("click",function(){
+		history.go(-1)
+	})
+})
+</script>
 
 </head>
 
@@ -44,7 +57,7 @@
 			구매 상품수량 : <input type="text" name="amount" value="${ purList[i].amount }">
 		
 			<tr class="ct_list_pop" id="divDataId">
-				<td align="center"><img height="250" width="250" src="/images/uploadFiles/${ proList[i].fileName }"/></td>
+				<td align="center"><img height="250" width="250" src="/images/uploadFiles/${ uploadList[i] }"/></td>
 				<td></td>
 				<td align="left">${ proList[i].prodName }</td>
 				<td></td>
@@ -194,10 +207,8 @@
 					<td width="17" height="23">
 						<img src="/images/ct_btnbg01.gif" width="17" height="23"/>
 					</td>
-					<td background="/images/ct_btnbg02.gif" class="ct_btn01"	style="padding-top: 3px;">
-						<!-- 판매코드가 0,1이 아니면 배송정보수정 불가 -->
-						<%-- <a href="/updatePurchaseView.do?tranNo=${ purList[0].tranNo }">수정</a> --%>
-						<a href="/purchase/updatePurchaseView?tranNo=${ purList[0].tranNo }">수정</a>
+					<td background="/images/ct_btnbg02.gif" class="ct_btn01" style="padding-top: 3px;">
+						수정
 					</td>
 					<td width="14" height="23">
 						<img src="/images/ct_btnbg03.gif" width="14" height="23"/>
@@ -208,7 +219,7 @@
 						<img src="/images/ct_btnbg01.gif" width="17" height="23"/>
 					</td>
 					<td background="/images/ct_btnbg02.gif" class="ct_btn01" style="padding-top: 3px;">
-						<a href="javascript:history.go(-1);">확인</a>
+						확인
 					</td>
 					<td width="14" height="23">
 						<img src="/images/ct_btnbg03.gif"width="14" height="23"/>
