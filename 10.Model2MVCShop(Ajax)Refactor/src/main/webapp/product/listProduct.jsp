@@ -6,22 +6,211 @@
 <head>
 <meta charset="EUC-KR">
 <link rel="stylesheet" href="/css/admin.css" type="text/css">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+
+<script src="//code.jquery.com/jquery-2.1.4.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
 <script type="text/javascript">
 
+$(function(){
+	
+	$("#navigator_start").bind("click",function(){
+		fncGetList(1)
+	})
+	
+	$("#navigator_before").bind("click",function(){
+		fncGetList(${ resultPage.beginUnitPage-1 })
+	})
+	
+	$("#navigator_after").bind("click",function(){
+		fncGetList(${ resultPage.endUnitPage+1 })
+	})
+	
+	$("#navigator_end").bind("click",function(){
+		fncGetList('${ resultPage.maxPage }')
+	})
+	
+	$("b:contains('가격순')").bind("click",function(){
+		if( $(this).attr("id") == 'asc' ){
+			fncGetSortList('asc')
+		}else{
+			fncGetSortList('desc')
+		}
+	})
+	
+	$("td.ct_btn01:contains('검색')").bind("click",function(){
+		fncGetProductList()
+	})
+	
+	$(".ct_list_").bind("click",function(){
+		var id = $(this).parent().parent().attr("id");
+		var ajax_id = $(this).text();
+		alert(ajax_id);
+		var proTranCode = $($(this).parent().parent().children()[2]).attr("id");
+		
+		if($(this).text().trim() == "-배송하기"){
+			location.href="/purchase/updateTranCodeByProd?prodNo="+id+"&currentPage=${ resultPage.currentPage }&tranCode=2&menu=${ menu }";
+		}else if(proTranCode == 0){
+			location.href="/product/getProduct/"+id+"/${ menu }";
+		}else{
+			
+			$.ajax(
+					{
+						url : "/product/getProduct/"+id+"/${ menu }" ,
+						method : "GET" ,
+						dataType : "json" ,
+						headers : {
+							"Accept" : "application/json",
+							"Content-Type" : "application/json"
+						},
+						success : function(JSONData , status) {
+
+							//Debug...
+							//alert(status);
+							//Debug...
+							//alert("JSONData : \n"+JSONData);
+							
+							var displayValue = "<h3>"
+											+"상품번호 : "+JSONData.productVO.prodNo+"<br/>"
+											+"상품이름 : "+JSONData.productVO.prodName+"<br/>"
+											+"상품상세정보 : "+JSONData.productVO.prodDetail+"<br/>"
+											+"제조일자 : "+JSONData.productVO.manuDate+"<br/>"
+											+"가격 : "+JSONData.productVO.price+"<br/>"
+											+"희망배송일 : "+JSONData.productVO.regDate+"<br/>"
+											+"수량 : "+JSONData.productVO.amount+"<br/>"
+											+"상품코드 : "+JSONData.productVO.proTranCode+"<br/>"
+											+"JSONData.uploadList.file_path : "+JSONData.uploadList[0].file_path+"<br/>"
+											+"JSONData.uploadList.fileName : "+JSONData.uploadList[0].fileName+"<br/>"
+											+"이미지개수 : "+JSONData.count+"<br/>"
+											+"</h3>";
+										
+							//Debug...
+							console.log("displayValue : " + displayValue);
+							$("h3").remove();
+							$( "#" + ajax_id + "" ).html(displayValue);
+						}
+				});
+			
+		}
+	})
+	
+	//Autocomplete
+	$("#searchId").bind("click",function(){
+		$.ajax(
+				{
+					url : "/product/autocompleteProduct" ,
+					method : "POST" ,
+					dataType : "json" ,
+					headers : {
+						"Accept" : "application/json",
+						"Content-Type" : "application/json"
+					},
+					success : function(JSONData , status) {
+						$( "#searchId" ).autocomplete({
+							  source: JSONData
+						});
+					}
+				});
+	});
+
+	/*
+	var page = 1;
+	$(window).scroll(function() {
+		var testValue = "$(document).height() - 100 : " + parseInt($(document).height() - 100) + "\n"
+						+ "$(window).height() : " + parseInt($(window).height()) + "\n"
+						+ "$(window).scrollTop() : " + parseInt($(window).scrollTop()) + "\n";
+		console.log(testValue);
+	    if ($(document).height() + 300 <= parseInt($(window).height()) + parseInt($(window).scrollTop()) ){
+	    	alert("scroll 작동");
+	    	
+	    	$.ajax(
+	    			{
+	    				url : "/product/json/listProduct" ,
+	    				data : {
+	    					currentpage : page
+	    				},
+						method : "POST" ,
+						dataType : "json" ,
+						headers : {
+							"Accept" : "application/json",
+							"Content-Type" : "application/json"
+						},
+						success : function(JSONData , status) {
+						var displayValue = "<h3>"
+										+"JSONData.resultPage.currentPage : "+JSONData.resultPage.currentPage+"<br/>"
+										+"JSONData.resultPage.totalCount : "+JSONData.resultPage.totalCount+"<br/>"
+										+"JSONData.resultPage.maxPage : "+JSONData.resultPage.maxPage+"<br/>"
+										+"JSONData.resultPage.beginUnitPage : "+JSONData.resultPage.beginUnitPage+"<br/>"
+										+"JSONData.resultPage.endUnitPage : "+JSONData.resultPage.endUnitPage+"<br/>"
+										+"JSONData.searchVO.searchCondition : "+JSONData.searchVO.searchCondition+"<br/>"
+										+"JSONData.searchVO.searchKeyword : "+JSONData.searchVO.searchKeyword+"<br/>"
+										+"JSONData.searchVO.pageSize : "+JSONData.searchVO.pageSize+"<br/>"
+										+"JSONData.searchVO.priceSort : "+JSONData.searchVO.priceSort+"<br/>"
+										+"JSONData.list[0].prodNo : "+JSONData.list[0].prodNo+"<br/>"
+										+"JSONData.listSize : "+JSONData.listSize+"<br/>"
+										+"JSONData.menu : "+JSONData.menu+"<br/>"
+										+"</h3>";
+							alert(status);
+							
+							$.each(JSONData, function(index, item){
+								console.log('each 실행, item : ' + item);
+								
+								//form의 3번째 자식 table에 붙인다
+								var displayValue = 
+										"<tr class='ct_list_pop' id='"+item[index]+"'>"
+											+"<td align='center'><img src='/images/uploadFiles/"+JSONData.uploadList[index]+"/></td>"
+											+"<td></td>"
+											+"<td align='left'><b class='ct_list_'>"+JSONData.list[index]+"</b></td>"
+											+"<td></td>"
+											+"<td align='left'>"+JSONData.list[index].price+"</td>"
+											+"<td></td>"
+											+"<td align='left'>"+JSONData.list[index].regDate+"</td>"
+											+"<td></td>"
+											+"<td align='left'>"
+												+"<c:if test='${ fn:trim(list[i].proTranCode) == "+0+" }'>판매중</c:if>"
+												+"<c:if test='${ fn:trim(list[i].proTranCode) == "+1+" }'>구매완료<c:if test='${ menu == "+manage+" }'><b class='ct_list_'>-배송하기</b></c:if></c:if>"
+												+"<c:if test='${ fn:trim(list[i].proTranCode) == "+2+" }'>배송중</c:if>"
+												+"<c:if test='${ fn:trim(list[i].proTranCode) == "+3+" }'>배송완료</c:if>"
+											+"</td>"
+										+"</tr>"
+										+"<tr>"
+											+"<td id='"+JSONData.list[index].prodName+"' colspan='11' bgcolor='D6D7D6' height='1'></td>"
+										+"</tr>";
+										
+										console.log("displayValue : " + displayValue);
+										$( $("form").children()[3] ).append(displayValue);
+
+						})//$.each
+					}//success
+	    		});//end of ajax
+			
+				//현재페이지 증가
+				page++;
+	    		
+	    	}//end of if
+	    });//end of scroll
+	*/
+	
+	
+		
+})
+
+
 function fncGetList(currentPage) {
-	document.getElementById("currentPage").value = currentPage;
-   	document.detailForm.submit();
+	$("#currentPage").val(currentPage);
+	$("form").submit();
 }
+
 function fncGetProductList() {
 	document.detailForm.searchCondition.value = document.detailForm.searchCondition.value;
-	//document.detailForm.searchKeyword.value = document.detailForm.searchKeyword.value;
 	document.forms[0].elements[2].value = document.forms[0].elements[2].value;
-   	document.detailForm.submit();
+	$("form").submit();
 }
+
 function fncGetSortList(priceSort) {
-	document.detailForm.priceSort.value = priceSort;
-   	document.detailForm.submit();
+	$("input[name='priceSort']").val(priceSort);
+	$("form").submit();
 }
 
 </script>
@@ -42,7 +231,7 @@ function fncGetSortList(priceSort) {
 		<td background="/images/ct_ttl_img02.gif" width="100%" style="padding-left:10px;">
 			<table width="100%" border="0" cellspacing="0" cellpadding="0">
 				<tr>
-					<td width="93%" class="ct_ttl01"> ${ sessionScope.user.role } ${ menu } 
+					<td width="93%" class="ct_ttl01"> ${ sessionScope.user.role } ${ menu }
 						<c:if test="${ menu == 'manage' }">
 							상품관리
 						</c:if>
@@ -69,7 +258,7 @@ function fncGetSortList(priceSort) {
 				<option value="1" ${ (searchVO.searchCondition == '1')?"selected":"" } >상품명</option>
 				<option value="2" ${ (searchVO.searchCondition == '2')?"selected":"" } >상품가격</option>
 			</select>
-			<input type="text" name="searchKeyword" value="${ searchVO.searchKeyword }" class="ct_input_g" style="width:200px; height:19px" />
+			<input id="searchId" type="text" name="searchKeyword" value="${ searchVO.searchKeyword }" class="ct_input_g" style="width:200px; height:19px" />
 		</td>
 	
 		
@@ -80,7 +269,7 @@ function fncGetSortList(priceSort) {
 						<img src="/images/ct_btnbg01.gif" width="17" height="23">
 					</td>
 					<td background="/images/ct_btnbg02.gif" class="ct_btn01" style="padding-top:3px;">
-						<a href="javascript:fncGetProductList();">검색</a>
+						검색
 					</td>
 					<td width="14" height="23">
 						<img src="/images/ct_btnbg03.gif" width="14" height="23">
@@ -95,12 +284,12 @@ function fncGetSortList(priceSort) {
 	<tr>
 		<td colspan="11" >전체 ${ resultPage.totalCount } 건수, 현재 ${ resultPage.currentPage } 페이지
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="javascript:fncGetSortList('asc')">낮은 가격순</a>&nbsp;/&nbsp;<a href="javascript:fncGetSortList('desc')">높은 가격순</a>
+		<b id="asc">낮은 가격순</b>&nbsp;/&nbsp;<b id="desc">높은 가격순</b>
 		<input type="hidden" name="priceSort" value="${ searchVO.priceSort }">
 		</td>
 	</tr>
 	<tr>
-		<td class="ct_list_b" width="100">No</td>
+		<td class="ct_list_b" width="100">image</td>
 		<td class="ct_line02"></td>
 		<td class="ct_list_b" width="150">상품명</td>
 		<td class="ct_line02"></td>
@@ -118,14 +307,16 @@ function fncGetSortList(priceSort) {
 
 	<c:if test="${ !empty sessionScope.user && sessionScope.user.role == 'admin' }">
 		<c:forEach var="i" begin="0" end="${ size-1 }" step="1">
-			<tr class="ct_list_pop">
-				<td align="center">${ size-i }</td>
+			<tr class="ct_list_pop" id="${ list[i].prodNo }">
+				<td align="center">
+					<img src="/images/uploadFiles/${ uploadList[i] }"/>
+				</td>
 				<td></td>
-					<td align="left">
-						<!-- 판매코드가 0이 아니면 상품수정 불가 -->
-						<%-- <a href="/updateProductView.do?prodNo=${ list[i].prodNo }&menu=${ menu }">${ list[i].prodName }</a> --%>
-						<a href="/product/updateProductView/${ list[i].prodNo }/${ menu }">${ list[i].prodName }</a>
-					</td>				
+				<td align="left">
+					<!-- 판매코드가 0이 아니면 상품수정 불가 -->
+					<b class="ct_list_">${ list[i].prodName }</b>
+					<%-- <a href="/product/updateProductView/${ list[i].prodNo }/${ menu }">${ list[i].prodName }</a> --%>
+				</td>				
 				<td></td>
 				<td align="left">${ list[i].price }</td>
 				<td></td>
@@ -138,8 +329,8 @@ function fncGetSortList(priceSort) {
 					<c:if test="${ fn:trim(list[i].proTranCode) == '1' }">
 						구매완료
 						<c:if test="${ menu == 'manage' }">
-							<%-- -<a href="/updateTranCodeByProd.do?prodNo=${ list[i].prodNo }&currentPage=${ resultPage.currentPage }&tranCode=2&menu=${ menu }">배송하기</a> --%>
-							-<a href="/purchase/updateTranCodeByProd?prodNo=${ list[i].prodNo }&currentPage=${ resultPage.currentPage }&tranCode=2&menu=${ menu }">배송하기</a>
+							<b class="ct_list_">-배송하기</b>
+							<%-- -<a href="/purchase/updateTranCodeByProd?prodNo=${ list[i].prodNo }&currentPage=${ resultPage.currentPage }&tranCode=2&menu=${ menu }">배송하기</a> --%>
 						</c:if>
 					</c:if>
 					<c:if test="${ fn:trim(list[i].proTranCode) == '2' }">
@@ -151,25 +342,25 @@ function fncGetSortList(priceSort) {
 				</td>	
 			</tr>
 			<tr>
-				<td colspan="11" bgcolor="D6D7D6" height="1"></td>
+				<td id="${ list[i].prodName }" colspan="11" bgcolor="D6D7D6" height="1"></td>
 			</tr>
 		</c:forEach>
 	</c:if>
 	<!-- 회원, 비회원 -->
 	<c:if test="${ sessionScope.user.role != 'admin' }">
 		<c:forEach var="i" begin="0" end="${ listSize-1 }" step="1">
-			<tr class="ct_list_pop">
+			<tr class="ct_list_pop" id="${ list[i].prodNo }">
 				<td align="center">${ listSize-i }</td>
 				<td></td>
-					<td align="left">
-						<c:if test="${ fn:trim(list[i].proTranCode) == '0' }">
-							<%-- <a href="/getProduct.do?prodNo=${ list[i].prodNo }&menu=${ menu }">${ list[i].prodName }</a> --%>
-							<a href="/product/getProduct/${ list[i].prodNo }/${ menu }">${ list[i].prodName }</a>
-						</c:if>
-						<c:if test="${ fn:trim(list[i].proTranCode) != '0' }">
-							${ list[i].prodName }
-						</c:if>
-					</td>
+				<td align="left"  id="${ list[i].proTranCode }">
+					<c:if test="${ fn:trim(list[i].proTranCode) == '0' }">
+						<b class="ct_list_">${ list[i].prodName }</b>
+						<%-- <a href="/product/getProduct/${ list[i].prodNo }/${ menu }">${ list[i].prodName }</a> --%>
+					</c:if>
+					<c:if test="${ fn:trim(list[i].proTranCode) != '0' }">
+						${ list[i].prodName }
+					</c:if>
+				</td>
 				
 				<td></td>
 				<td align="left">${ list[i].price }</td>
