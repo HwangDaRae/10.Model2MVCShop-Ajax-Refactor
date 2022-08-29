@@ -68,6 +68,7 @@ public class ProductRestController {
 	//@Value("#{commonProperties['pageSize'] ?: 2}")
 	int pageSize;
 	
+	/*
 	@RequestMapping( value = "getProduct/{prodNo}/{menu}", method = RequestMethod.GET )
 	public Map<String, Object> getProduct(@PathVariable int prodNo, @PathVariable String menu) throws Exception {
 		System.out.println("/getProduct : GET");
@@ -78,6 +79,7 @@ public class ProductRestController {
 		map.put("count", uploadList.get(0).getFileCount());
 		return map;
 	}
+	*/
 	
 	@RequestMapping( value = "autocompleteProduct", method = RequestMethod.POST )
 	public List<String> autocompleteProduct() throws Exception {

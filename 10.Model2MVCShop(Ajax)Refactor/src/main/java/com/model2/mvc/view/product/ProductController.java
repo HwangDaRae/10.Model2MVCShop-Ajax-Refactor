@@ -184,7 +184,6 @@ public class ProductController {
 		return "forward:/product/listProduct.jsp";
 	}
 
-	/*
 	@RequestMapping( value = "getProduct/{prodNo}/{menu}", method = RequestMethod.GET )
 	public String getProduct(@PathVariable int prodNo, @PathVariable String menu, Model model ) throws Exception {
 		System.out.println("/getProduct : GET");
@@ -195,7 +194,7 @@ public class ProductController {
 		model.addAttribute("count", uploadList.get(0).getFileCount());
 		return "forward:/product/getProduct.jsp";
 	}
-	*/
+	
 	@RequestMapping( value = "addProductView", method = RequestMethod.GET )
 	public String addProductView() throws Exception {
 		System.out.println("/addProductView : GET");

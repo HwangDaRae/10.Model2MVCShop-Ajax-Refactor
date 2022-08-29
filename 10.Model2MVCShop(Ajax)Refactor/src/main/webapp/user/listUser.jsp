@@ -36,7 +36,35 @@ $(function(){
 						$("#dialog").dialog();
 					}
 			});
-	});
+	});//end of getUser
+	
+	page = 1;
+	$(window).scroll(function() {
+		if ($(document).height() - 1000 <= parseInt($(window).scrollTop()) ){
+			//현재페이지 증가
+			page++;
+			
+			$.ajax(
+	    			{
+	    				url : "/user/json/listUser",
+	    				data : JSON.stringify({
+	    					currentPage : page
+	    				}),
+						method : "POST",
+						dataType : "json",
+						headers : {
+							"Accept" : "application/json",
+							"Content-Type" : "application/json"
+						},
+						success : function(JSONData, status) {
+							alert(status);
+							alert(JSONData);
+							alert(JSONData[0].userId);
+							alert(JSONData[1].userId);
+					}//success
+	    		});//end of ajax
+		}//end of if
+	});//end of scroll
 })
 
 </script>
@@ -126,15 +154,15 @@ $(function(){
 	<c:forEach var="user" items="${list}">
 		<c:set var="i" value="${ i+1 }" />
 		<tr class="ct_list_pop">
-			<td align="center">${ i }</td>
-			<td></td>
-			<td align="left">
+			<td align="center" height="120">${ i }</td>
+			<td height="120"></td>
+			<td align="left" height="120">
 				${user.userId}
 			</td>
-			<td></td>
-			<td align="left">${user.userName}</td>
-			<td></td>
-			<td align="left">${user.email}</td>
+			<td height="120"></td>
+			<td align="left" height="120">${user.userName}</td>
+			<td height="120"></td>
+			<td align="left" height="120">${user.email}</td>
 		</tr>
 		<tr>
 			<td colspan="11" bgcolor="D6D7D6" height="1"></td>
@@ -147,7 +175,7 @@ $(function(){
 	<tr>
 		<td align="center">
 		   <input type="hidden" id="currentPage" name="currentPage" value=""/>
-			<jsp:include page="../common/pageNavigator.jsp"/>
+			<%-- <jsp:include page="../common/pageNavigator.jsp"/> --%>
     	</td>
 	</tr>
 </table>
