@@ -33,7 +33,6 @@
 			
 			//==>"Login"  Event 연결
 			$("img[src='/images/btn_login.gif']").on("click" , function() {
-
 				var id=$("input:text").val();
 				var pw=$("input:password").val();
 				
@@ -113,7 +112,6 @@
 				    	tips.removeClass( "ui-state-highlight", 2500 );
 					}, 500 );
 			}//end of updateTips( t )
-
 			//입력필드가 빨간색이 되고 유효성 체크 결과를 보여주는 란에 메시지가 나온다
 			function checkLength( o, n, min, max ) {
 				if ( o.val().length > max || o.val().length < min ) {
@@ -125,7 +123,6 @@
 			    	return true;
 			    }
 			}//end of checkLength( o, n, min, max )
-
 			//이메일 체크 이걸로 안함
 			function checkRegexp( o, regexp, n ) {
 				if ( !( regexp.test( o.val() ) ) ) {
@@ -143,7 +140,6 @@
 				var num = fieldValue;
 			    if (!pattern.test(num)) return false; 
 			    num = RegExp.$1 + RegExp.$2;
-
 				var sum = 0;
 				var last = num.charCodeAt(12) - 0x30;
 				var bases = "234567892345";
@@ -157,7 +153,6 @@
 			
 			//user정보를 db로 보낸다
 			function addUser() {
-				alert('addUser');
 				var valid = true;
 				//유효성 검사로 빨간색이 된 text를 reset한다
 				allFields.removeClass( "ui-state-error" );
@@ -165,93 +160,95 @@
 				//유효성검사
 				//object, 이름, 최소길이, 최대길이
 				valid = valid && checkLength( userId, "아이디", 1, 20 );
+				valid = valid && checkLength(password, "비밀번호", 1, 10);
+				valid = valid && checkLength(password2, "비밀번호 확인", 1, 10);
 				
-				//keyup, keydown, change했을 때 db가서 모든 userId랑 비교해 있으면 빨간색 경고 없으면 가입할 수 있다
-				$.ajax({
-							url : "/user/json/checkDuplication",
-				})//end of ajax
-				
-				
-				
-				
-				
-				
-				
-				
-				//////////////////////////////
-				
-				//////////////////////////////
-				
-				
-				
-				
-				
-				
-				
-				valid = valid && checkLength( password, "비밀번호", 1, 10 );
-				valid = valid && checkLength( password2, "비밀번호 확인", 1, 10 );
-
-				if( password.val().trim().length != 0 && password2.val().trim().length != 0 ){
-					if( parseInt(password.val()) == parseInt(password2.val()) ) {
-						password.removeClass( "ui-state-error" );
-						password2.removeClass( "ui-state-error" );
+				if (password.val().trim().length != 0
+						&& password2.val().trim().length != 0) {
+					if (parseInt(password.val()) == parseInt(password2.val())) {
+						password.removeClass("ui-state-error");
+						password2.removeClass("ui-state-error");
 						valid = true;
-					}else{
-						password2.addClass( "ui-state-error" );
-						updateTips( "비밀번호가 일치하지 않습니다" );
+					} else {
+						password2.addClass("ui-state-error");
+						updateTips("비밀번호가 일치하지 않습니다");
 						valid = false;
 					}
 				}
-				
-				valid = valid && checkLength( userName, "이름", 1, 50 );
-				
-				if(email.val() != ""){
-					if(email.val().indexOf('@') < 1 || email.val().indexOf('@') == -1 || email.val().indexOf('.') == -1){
+
+				valid = valid && checkLength(userName, "이름", 1, 50);
+
+				if (email.val() != "") {
+					if (email.val().indexOf('@') < 1
+							|| email.val().indexOf('@') == -1
+							|| email.val().indexOf('.') == -1) {
 						//valid = valid && checkRegexp( email, emailRegex, "이메일형식을 확인해주세요" );
-						updateTips( "이메일 형식을 확인해주세요" );
+						updateTips("이메일 형식을 확인해주세요");
 						console.log("6 : " + valid);
 						valid = false;
-					}else{
+					} else {
 						valid = true;
 					}
 				}
-				
+
 				//db 갖다오기
 				//$("form[name='dialogForm']").submit();
-				if ( valid ) {
+				if (valid) {
 					document.dialogForm.submit();
-					dialog.dialog( "close" );
+					dialog.dialog("close");
 				}
-				
+
 				return valid;
 			}//end of addUser()
-			
-			dialog = $( "#dialog-form" ).dialog({
-				autoOpen: false,
-				height: 600,
-				width: 550,
-				modal: true,
-				buttons: {
-					"가입하기": addUser,
-			        취소: function() {
-			        	dialog.dialog( "close" );
-			        }
+
+			dialog = $("#dialog-form").dialog({
+				autoOpen : false,
+				height : 600,
+				width : 550,
+				modal : true,
+				buttons : {
+					"가입하기" : addUser,
+					취소 : function() {
+						dialog.dialog("close");
+					}
 				},
-				close: function() {
+				close : function() {
 					form[0].reset();
-			    }
+				}
 			});//end of dialog 정보
-			
-			form = dialog.find( "form" ).on( "submit", function( event ) {
+
+			form = dialog.find("form").on("submit", function(event) {
 				event.preventDefault();
 				addUser();
 			});
-			
-			$("img[src='/images/btn_add.gif']").on("click" , function() {
+
+			$("img[src='/images/btn_add.gif']").on("click", function() {
 				dialog.dialog("open");
-		    });
+			});
 		});
 		
+		// 회원가입시 유저아이디가 변화할때마다 사용가능한지 db가서 확인한다
+		$(function(){			
+			//keyup, keydown, change했을 때 db가서 모든 userId랑 비교해 있으면 빨간색 경고 없으면 가입할 수 있다
+			$("input[id='userId'][class='text ui-widget-content ui-corner-all']").bind("keyup",function(){
+				var userTextId = $("input[id='userId'][class='text ui-widget-content ui-corner-all']").val();
+				$.ajax({
+					url : "/user/json/checkDuplication",
+					method : "POST",
+					headers : {
+						"Accept" : "application/json",
+						"Content-Type" : "application/json"
+					},
+					data : JSON.stringify({
+						userId : userTextId
+					}),
+					dataType : "json",
+					success : function(JSONData, status) {
+						$(".validateTips_checkDuplication").text( userTextId + '는 ' + JSONData.result );
+					}
+				})//end of ajax */
+			});
+		});
 	</script>		
 	
 </head>
@@ -265,6 +262,7 @@
 		<fieldset>
 			<label for="name">아이디</label>
 			<input type="text" name="userId" id="userId" class="text ui-widget-content ui-corner-all">
+			<p class="validateTips_checkDuplication"></p>
 			<label for="name">비밀번호</label>
 			<input type="password" name="password" id="password" class="text ui-widget-content ui-corner-all">
 			<label for="name">비밀번호 확인</label>

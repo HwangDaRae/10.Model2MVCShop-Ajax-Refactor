@@ -1,5 +1,8 @@
 package com.model2.mvc.view.user;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,24 @@ public class UserRestController {
 		}
 		
 		return dbUser;
+	}
+	
+	@RequestMapping( value="json/checkDuplication", method=RequestMethod.POST )
+	public Map<String, Object> checkDuplication( @RequestBody User user ) throws Exception{
+
+		System.out.println("/user/checkDuplication : POST");
+		//Business Logic
+		boolean result=userService.checkDuplication(user.getUserId());
+		// Model 과 View 연결
+		// true => 사용 가능하다, false => 사용 불가능하다
+		String comment = "사용가능한 아이디입니다";
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(!result) {
+			comment = "이미 사용하고 있는 아이디입니다";
+		}
+		map.put("result", comment);
+
+		return map;
 	}
 
 }
