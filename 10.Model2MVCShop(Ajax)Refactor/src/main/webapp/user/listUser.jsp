@@ -11,11 +11,12 @@
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
 <script type="text/javascript">
-$(function(){
+function init(){
+	// userId 클릭시 dialog로 유저 정보가 보여진다
 	$( ".ct_list_pop td:nth-child(3)" ).on("click" , function() {
 		var displayValue;
 		//Debug..
-		alert(  $( this ).text().trim() );
+		//alert(  $( this ).text().trim() );
 		var userId = $(this).text().trim();
 		$.ajax(
 				{
@@ -31,13 +32,15 @@ $(function(){
 										+"이  름 : "+JSONData.userName
 										+"이메일 : "+JSONData.email
 										+"ROLE : "+JSONData.role
-										+"등록일 : "+JSONData.regDateString
+										+"주소 : "+JSONData.addr
 						$("#dialog").text(displayValue);
 						$("#dialog").dialog();
 					}
 			});
 	});//end of getUser
-	
+}
+
+$(function(){	
 	page = 1;
 	$(window).scroll(function() {
 		if ($(document).height() - 1000 <= parseInt($(window).scrollTop()) ){
@@ -66,7 +69,14 @@ $(function(){
 						success : function(JSONData, status) {
 							beforeIndex = $("td[align='center'][height='120']:last").text() //마지막의 첫번째 자식
 							
+							// userId 클릭시 dialog로 유저 정보가 보여진다
+							init();
+							
 							$.each(JSONData, function(index, item){
+								
+								if(item.email === null){
+									item.email = "";
+								}
 								
 								//form의 3번째 자식 table에 붙인다
 								var displayValue = 
@@ -108,7 +118,7 @@ $(function(){
 
 </head>
 
-<body bgcolor="#ffffff" text="#000000">
+<body bgcolor="#ffffff" text="#000000" onload="javascript:init()">
 
 	<div id="dialog" title="Basic dialog"></div>
 
