@@ -44,20 +44,22 @@ $(function(){
 	})
 	
 	$(".ct_list_").bind("click",function(){
-		var id = $(this).parent().parent().attr("id");
+		var prodNo = $(this).parent().parent().attr("id");
 		var ajax_id = $(this).text();
-		alert(ajax_id);
+		alert("ajax_id : " + ajax_id);
 		var proTranCode = $($(this).parent().parent().children()[2]).attr("id");
 		
 		if($(this).text().trim() == "-배송하기"){
 			location.href="/purchase/updateTranCodeByProd?prodNo="+id+"&currentPage=${ resultPage.currentPage }&tranCode=2&menu=${ menu }";
 		}else if(proTranCode == 0){
+			alert('a');
 			location.href="/product/getProduct/"+id+"/${ menu }";
 		}else{
+			alert('b');
 			
 			$.ajax(
 					{
-						url : "/product/getProduct/"+id+"/${ menu }" ,
+						url : "/product/json/getProduct/"+prodNo+"/${ menu }" ,
 						method : "GET" ,
 						dataType : "json" ,
 						headers : {
@@ -80,8 +82,8 @@ $(function(){
 											+"희망배송일 : "+JSONData.productVO.regDate+"<br/>"
 											+"수량 : "+JSONData.productVO.amount+"<br/>"
 											+"상품코드 : "+JSONData.productVO.proTranCode+"<br/>"
-											+"JSONData.uploadList.file_path : "+JSONData.uploadList[0].file_path+"<br/>"
-											+"JSONData.uploadList.fileName : "+JSONData.uploadList[0].fileName+"<br/>"
+											/* +"JSONData.uploadList.file_path : "+JSONData.uploadList[0].file_path+"<br/>" */
+											+"이미지이름 : "+JSONData.uploadList[0].fileName+"<br/>"
 											+"이미지개수 : "+JSONData.count+"<br/>"
 											+"</h3>";
 										
